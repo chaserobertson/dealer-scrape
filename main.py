@@ -2,21 +2,22 @@
 from requests_html import AsyncHTMLSession
 
 NUM_PAGES = 5
+URL = 'https://www.dealerrater.com/dealer/McKaig-Chevrolet-Buick-A-Dealer-For-The-People-dealer-reviews-23685/page'
 asession = AsyncHTMLSession()
 
 
 class Review:
-    def __init__(self, superrating, content, ratings):
-        self.superrating = superrating
+    def __init__(self, rating, content, subratings):
+        self.rating = rating
         self.content = content
-        self.ratings = ratings
+        self.subratings = subratings
 
     def __str__(self):
         output = '\n'
-        output += 'Superrating: ' + str(self.superrating) + '\n'
+        output += 'Rating: ' + str(self.rating) + '\n'
         output += self.content + '\n'
-        for rating in self.ratings.keys():
-            output += str(rating) + ': ' + str(self.ratings[rating]) + '\n'
+        for rating in self.subratings.keys():
+            output += str(rating) + ': ' + str(self.subratings[rating]) + '\n'
         return output
 
 
@@ -30,8 +31,8 @@ class ReviewCollection:
             output += str(review)
         return output
 
-    def addReview(self, superrating, content, ratings):
-        self.reviews.append(Review(superrating, content, ratings))
+    def addReview(self, rating, content, subratings):
+        self.reviews.append(Review(rating, content, subratings))
 
     def getReviews(self):
         return self.reviews
@@ -39,8 +40,7 @@ class ReviewCollection:
 
 async def get_reviews_page():
     page_num = 1
-    request_url = 'https://www.dealerrater.com/dealer/McKaig-Chevrolet-Buick-A-Dealer-For-The-People-dealer-reviews-23685/page'
-    request_url += str(page_num)
+    request_url = URL + str(page_num)
     r = await asession.get(request_url)
     return r
 
@@ -57,9 +57,9 @@ def digest_review_element(r):
             score = score[0]
         ratings_dict.setdefault(text, score)
     review = {
-        'superrating': r.search(' rating-{} ')[0],
+        'rating': r.search(' rating-{} ')[0],
         'content': r.find('.review-content')[0].text,
-        'ratings': ratings_dict
+        'subratings': ratings_dict
     }
     return review
 
@@ -80,7 +80,7 @@ def main():
 
             # add review to collection
             review_collection.addReview(
-                review['superrating'], review['content'], review['ratings'])
+                review['rating'], review['content'], review['subratings'])
 
     print(review_collection)
 
