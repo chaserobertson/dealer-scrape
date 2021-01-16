@@ -44,7 +44,8 @@ class ReviewCollection:
         return len(self.reviews)
 
     def identifyPositive(self):
-        return self.reviews[:3]
+        self.reviews.sort(key=Review.positivityScore, reverse=True)
+        return self.reviews[:1]
 
 
 def create_request(page_num):
