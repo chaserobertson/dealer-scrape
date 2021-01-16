@@ -2,6 +2,8 @@
 from requests_html import AsyncHTMLSession
 
 NUM_PAGES = 5
+NUM_REVIEWS_TO_DISPLAY = 3
+MAX_RATING = 50
 URL = 'https://www.dealerrater.com/dealer/McKaig-Chevrolet-Buick-A-Dealer-For-The-People-dealer-reviews-23685/page'
 asession = AsyncHTMLSession()
 
@@ -21,6 +23,14 @@ class Review:
         return output
 
     def positivityScore(self):
+        # start with rating out of max
+        score = self.rating / MAX_RATING
+
+        for subrating in self.subratings.values():
+            # if dealership not recommended, halve the score
+            if type(subrating) == bool and not subrating:
+                score *= 0.5
+            score *= subrating / MAX_RATING
         return self.rating
 
 
@@ -45,7 +55,10 @@ class ReviewCollection:
 
     def identifyPositive(self):
         self.reviews.sort(key=Review.positivityScore, reverse=True)
-        return self.reviews[:1]
+        if len(self.reviews) > NUM_REVIEWS_TO_DISPLAY:
+            return self.reviews[:NUM_REVIEWS_TO_DISPLAY]
+        else:
+            return self.reviews
 
 
 def create_request(page_num):
@@ -71,14 +84,14 @@ def digest_review_element(r):
         if score == None:
             score = rating.find('.small-text.boldest')[0].text == 'Yes'
         else:
-            score = score[0]
+            score = int(score[0])
 
         # add this subrating to dict
         subratings.setdefault(text, score)
 
     # create struct from processed review element
     return {
-        'rating': r.search(' rating-{} ')[0],
+        'rating': int(r.search(' rating-{} ')[0]),
         'content': r.find('.review-content')[0].text,
         'subratings': subratings
     }
