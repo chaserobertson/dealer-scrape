@@ -37,12 +37,16 @@ class ReviewCollection:
     def getReviews(self):
         return self.reviews
 
+    def numReviews(self):
+        return len(self.reviews)
 
-async def get_reviews_page():
-    page_num = 1
-    request_url = URL + str(page_num)
-    r = await asession.get(request_url)
-    return r
+
+def create_request(page_num):
+    async def get_reviews_page():
+        request_url = URL + str(page_num)
+        r = await asession.get(request_url)
+        return r
+    return get_reviews_page
 
 
 def digest_review_element(r):
@@ -66,7 +70,9 @@ def digest_review_element(r):
 
 def main():
     # get all NUM_PAGES review pages asynchronously
-    results = asession.run(get_reviews_page)
+    get_review_pages = [create_request(i) for i in range(1, NUM_PAGES + 1)]
+
+    results = asession.run(*get_review_pages)
     # initialize review collection
     review_collection = ReviewCollection()
 
@@ -79,10 +85,10 @@ def main():
             review = digest_review_element(re)
 
             # add review to collection
-            review_collection.addReview(
-                review['rating'], review['content'], review['subratings'])
+            review_collection.addReview(**review)
 
     print(review_collection)
 
 
-main()
+if __name__ == '__main__':
+    main()
