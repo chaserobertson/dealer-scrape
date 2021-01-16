@@ -20,6 +20,9 @@ class Review:
             output += str(rating) + ': ' + str(self.subratings[rating]) + '\n'
         return output
 
+    def positivityScore(self):
+        return self.rating
+
 
 class ReviewCollection:
     def __init__(self):
@@ -31,8 +34,8 @@ class ReviewCollection:
             output += str(review)
         return output
 
-    def addReview(self, rating, content, subratings):
-        self.reviews.append(Review(rating, content, subratings))
+    def addReview(self, **kwargs):
+        self.reviews.append(Review(**kwargs))
 
     def getReviews(self):
         return self.reviews
@@ -40,8 +43,12 @@ class ReviewCollection:
     def numReviews(self):
         return len(self.reviews)
 
+    def identifyPositive(self):
+        return self.reviews[:3]
+
 
 def create_request(page_num):
+    # define new request with different page num
     async def get_reviews_page():
         request_url = URL + str(page_num)
         r = await asession.get(request_url)
@@ -50,31 +57,38 @@ def create_request(page_num):
 
 
 def digest_review_element(r):
-    ratings_dict = dict()
+    subratings = dict()
+
+    # extract subratings from this review
     ratings = r.find('.review-ratings-all')[0].find('.tr')
     for rating in ratings:
+        # get text name of this subrating
         text = rating.find('.td')[0].text
+
+        # get numerical or boolean score of this subrating
         score = rating.search(' rating-{} ')
         if score == None:
             score = rating.find('.small-text.boldest')[0].text == 'Yes'
         else:
             score = score[0]
-        ratings_dict.setdefault(text, score)
-    review = {
+
+        # add this subrating to dict
+        subratings.setdefault(text, score)
+
+    # create struct from processed review element
+    return {
         'rating': r.search(' rating-{} ')[0],
         'content': r.find('.review-content')[0].text,
-        'subratings': ratings_dict
+        'subratings': subratings
     }
-    return review
 
 
-def main():
-    # get all NUM_PAGES review pages asynchronously
-    get_review_pages = [create_request(i) for i in range(1, NUM_PAGES + 1)]
-
-    results = asession.run(*get_review_pages)
-    # initialize review collection
+def generateReviewCollection():
     review_collection = ReviewCollection()
+
+    # get all review pages asynchronously
+    get_review_pages = [create_request(i) for i in range(1, NUM_PAGES + 1)]
+    results = asession.run(*get_review_pages)
 
     for result in results:
         # get all review elements in current page
@@ -87,7 +101,21 @@ def main():
             # add review to collection
             review_collection.addReview(**review)
 
-    print(review_collection)
+    return review_collection
+
+
+def main():
+    # Step 1: scrape the first 5 pages of reviews
+    reviews = generateReviewCollection()
+
+    # Step 2: identify the top three most overly positive endorsements
+    top_reviews = reviews.identifyPositive()
+
+    # Step 3: output top three reviews to the console in order of severity
+    for review in top_reviews:
+        print(review)
+
+    return 0
 
 
 if __name__ == '__main__':
