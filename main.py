@@ -30,7 +30,10 @@ def main():
     results = asession.run(get_reviews_page)
     for result in results:
         print(result.html.url)
-        reviews_section = result.html.find('#reviews')
+        review_elements = result.html.find('.review-entry')
+        for re in review_elements:
+            rating = re.search(' rating-{} ')[0]
+            print(rating)
 
 
 main()
