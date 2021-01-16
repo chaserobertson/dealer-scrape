@@ -14,26 +14,26 @@ async def get_reviews_page():
 
 
 class Review:
-    def __init__(self, rating, title, text):
+    def __init__(self, rating, text):
         self.rating = rating
-        self.title = title
         self.text = text
 
     def __str__(self):
         output = 'Rating: ' + str(self.rating) + '\n'
-        output += 'Title: ' + self.title + '\n'
         output += self.text + '\n'
         return output
 
 
 def main():
+    # get all NUM_PAGES review pages asynchronously
     results = asession.run(get_reviews_page)
+
     for result in results:
-        print(result.html.url)
+        # get all review elements in current page
         review_elements = result.html.find('.review-entry')
         for re in review_elements:
+            # get rating of this review
             rating = re.search(' rating-{} ')[0]
-            print(rating)
 
 
 main()
