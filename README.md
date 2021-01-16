@@ -28,5 +28,5 @@ The number of employee reviews, relative to the other reviews processed, scaled 
 - If a review has half the maximum number of employee ratings of all processed reviews, and they are all 4 star ratings, the score for this section is 12.5 * 4/5 = 10.
 ### 25 pts: Review Body
 Number of words in the review, relative to the maximum number of words from the other reviews processed.
-- If a review has the maximum number of words of all processed reviews, the score for this section is 25 * 5/5 = 25.
-- If a review has very few words, the score for this section will be quite low, depending on the number of words in other reviews.
+- If a review body has the maximum number of words of all processed reviews, the score for this section is 25.
+- If the maximum number of words in other review bodies is 100, and a review body has only 10 words, this section's score for that review will be 25 * 10/100 = 2.5.
