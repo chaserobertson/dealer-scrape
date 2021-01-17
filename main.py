@@ -14,6 +14,7 @@ class Review:
         self.content = content
         self.subratings = subratings
         self.employee_ratings = employee_ratings
+        self.positivityScore = 0
 
     def __str__(self):
         output = '\n'
@@ -25,21 +26,39 @@ class Review:
             output += 'Employee Rating: ' + str(rating) + '\n'
         return output
 
-    def positivityScore(self):
-        # start with rating out of max
-        score = self.rating / MAX_RATING
+    def getPositivityScore(self):
+        return self.positivityScore
 
-        for subrating in self.subratings.values():
-            # if dealership not recommended, halve the score
-            if type(subrating) == bool and not subrating:
-                score *= 0.5
-            score *= subrating / MAX_RATING
-        return self.rating
+    def calcPositivityScore(self, body_max, num_emp_max):
+        # start with review rating multiplied by 5
+        subscores = [self.rating * 5]
+
+        # sum subratings and divide by 2 if dealership not recommended
+        subrating_subscore = sum(self.subratings.values())
+        if self.subratings['Recommend Dealer'] == True:
+            subrating_subscore -= 1
+        else:
+            subrating_subscore /= 2
+        subscores.append(subrating_subscore)
+
+        # number of employee ratings relative to max, scaled to 25, multiplied by avg rating out of 5
+        num_emp = len(self.employee_ratings)
+        if num_emp == 0:
+            emp_subscore = 0
+        else:
+            avg_rating = sum(self.employee_ratings) / num_emp
+            emp_subscore = (25 * num_emp / num_emp_max) * (avg_rating / 5)
+        subscores.append(emp_subscore)
+
+        print(subscores)
+        self.positivityScore = sum(subscores)
 
 
 class ReviewCollection:
     def __init__(self):
         self.reviews = []
+        self.body_max = 0.1
+        self.num_emp_max = 0.1
 
     def __str__(self):
         output = ''
@@ -48,6 +67,15 @@ class ReviewCollection:
         return output
 
     def addReview(self, **kwargs):
+        # update max review body size and number of employee reviews
+        body_size = len(kwargs['content'])
+        if body_size > self.body_max:
+            self.body_max = body_size
+        num_emp = len(kwargs['employee_ratings'])
+        if num_emp > self.num_emp_max:
+            self.num_emp_max = num_emp
+
+        # add the review
         self.reviews.append(Review(**kwargs))
 
     def getReviews(self):
@@ -57,11 +85,12 @@ class ReviewCollection:
         return len(self.reviews)
 
     def identifyPositive(self):
-        self.reviews.sort(key=Review.positivityScore, reverse=True)
-        if len(self.reviews) > NUM_REVIEWS_TO_DISPLAY:
-            return self.reviews[:NUM_REVIEWS_TO_DISPLAY]
-        else:
-            return self.reviews
+        # calculate score of each review
+        for review in self.reviews:
+            review.calcPositivityScore(self.body_max, self.num_emp_max)
+        # sort by positivity score, descending
+        self.reviews.sort(key=Review.getPositivityScore, reverse=True)
+        return self.reviews[:NUM_REVIEWS_TO_DISPLAY]
 
 
 def create_request(page_num):
@@ -74,7 +103,6 @@ def create_request(page_num):
 
 
 def digest_review_element(r):
-
     # extract subratings
     subratings = dict()
     ratings = r.find('.review-ratings-all')[0].find('.tr')
@@ -87,7 +115,7 @@ def digest_review_element(r):
         if score == None:
             score = rating.find('.small-text.boldest')[0].text == 'Yes'
         else:
-            score = int(score[0])
+            score = int(score[0]) / 10
 
         # add this subrating to dict
         subratings.setdefault(text, score)
@@ -98,11 +126,11 @@ def digest_review_element(r):
     for er in emp_ratings:
         rating_found = er.search(' rating-{} ')
         if rating_found != None:
-            employees.append(int(rating_found[0]))
+            employees.append(int(rating_found[0]) / 10)
 
-    # create struct from processed review element
+    # create kwargs struct from processed review element
     return {
-        'rating': int(r.search(' rating-{} ')[0]),
+        'rating': int(r.search(' rating-{} ')[0]) / 10,
         'content': r.find('.review-content')[0].text,
         'subratings': subratings,
         'employee_ratings': employees

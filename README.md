@@ -22,10 +22,10 @@ The sum of each subrating from the review, each out of 5 stars, divided by 2 if 
 - ...
 - If the dealer is recommended, leave this section's score as-is. If the dealer is not recommended, divide this section's summed score by 2.
 ### 25 pts: Employee Ratings
-The number of employee reviews, relative to the other reviews processed, scaled by the average positivity of the employee reviews.
+The number of employee reviews, relative to the other reviews processed, scaled to 5, then scaled by the average positivity of the employee reviews.
 - No employee reviews results in a score of 0 for this section.
-- If a review has the maximum number of employee ratings of all processed reviews, and they are all 5 star ratings, the score for this section is 25 * 5/5 = 25.
-- If a review has half the maximum number of employee ratings of all processed reviews, and they are all 4 star ratings, the score for this section is 12.5 * 4/5 = 10.
+- If a review has the maximum number 10 of employee ratings of all processed reviews, and they are all 5 star ratings, the score for this section is (10/10 * 25) * 5/5 = 25.
+- If a review has 5 employee ratings, but the maximum number of employee ratings of all processed reviews is 10, and they are all 4 star ratings, the score for this section is (5/10 * 25) * 4/5 = 10.
 ### 25 pts: Review Body
 Number of words in the review, relative to the maximum number of words from the other reviews processed.
 - If a review body has the maximum number of words of all processed reviews, the score for this section is 25.
