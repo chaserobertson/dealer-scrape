@@ -1,9 +1,15 @@
 # dealer-scrape
-Scrapes reviews and identifies those most "overly positive", as defined below:
+Scrapes dealer reviews and identifies those most "overly positive", as defined below.
 
 1. Scrapes the first five pages of reviews of McKaig Chevrolet Buick on DealerRater.com.
 2. Identifies the top three most “overly positive” endorsements (criteria below).
 3. Outputs these three reviews to the console, in descending order of positivity score.
+
+# How to run dealer-scrape
+Figuring out how to package it up, but in the meantime you can:
+1. Install python3
+2. pip install requests_html
+3. Navigate to main.py directory and run 'python3 main.py'
 
 ## What makes a review overly positive?
 A review is given a positivity score based on the sum of the following points system.<br>
