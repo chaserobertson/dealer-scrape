@@ -9,10 +9,11 @@ asession = AsyncHTMLSession()
 
 
 class Review:
-    def __init__(self, rating, content, subratings):
+    def __init__(self, rating, content, subratings, employee_ratings):
         self.rating = rating
         self.content = content
         self.subratings = subratings
+        self.employee_ratings = employee_ratings
 
     def __str__(self):
         output = '\n'
@@ -20,6 +21,8 @@ class Review:
         output += self.content + '\n'
         for rating in self.subratings.keys():
             output += str(rating) + ': ' + str(self.subratings[rating]) + '\n'
+        for rating in self.employee_ratings:
+            output += 'Employee Rating: ' + str(rating) + '\n'
         return output
 
     def positivityScore(self):
@@ -71,9 +74,9 @@ def create_request(page_num):
 
 
 def digest_review_element(r):
-    subratings = dict()
 
-    # extract subratings from this review
+    # extract subratings
+    subratings = dict()
     ratings = r.find('.review-ratings-all')[0].find('.tr')
     for rating in ratings:
         # get text name of this subrating
@@ -89,11 +92,20 @@ def digest_review_element(r):
         # add this subrating to dict
         subratings.setdefault(text, score)
 
+    # extract employee ratings
+    employees = []
+    emp_ratings = r.find('.review-employee')
+    for er in emp_ratings:
+        rating_found = er.search(' rating-{} ')
+        if rating_found != None:
+            employees.append(int(rating_found[0]))
+
     # create struct from processed review element
     return {
         'rating': int(r.search(' rating-{} ')[0]),
         'content': r.find('.review-content')[0].text,
-        'subratings': subratings
+        'subratings': subratings,
+        'employee_ratings': employees
     }
 
 
