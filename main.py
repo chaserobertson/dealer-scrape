@@ -50,7 +50,10 @@ class Review:
             emp_subscore = (25 * num_emp / num_emp_max) * (avg_rating / 5)
         subscores.append(emp_subscore)
 
-        print(subscores)
+        # number of words in the review body, relative to maximum, scaled to 25
+        body_score = (len(self.content.split(' ')) / body_max) * 25
+        subscores.append(body_score)
+
         self.positivityScore = sum(subscores)
 
 
@@ -68,7 +71,7 @@ class ReviewCollection:
 
     def addReview(self, **kwargs):
         # update max review body size and number of employee reviews
-        body_size = len(kwargs['content'])
+        body_size = len(kwargs['content'].split(' '))
         if body_size > self.body_max:
             self.body_max = body_size
         num_emp = len(kwargs['employee_ratings'])
