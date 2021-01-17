@@ -4,7 +4,9 @@ Scrapes dealer reviews and identifies those most "overly positive", as defined b
 1. Scrapes the first five pages of reviews of McKaig Chevrolet Buick on DealerRater.com.
 ![McKaig dealership biography](./resources/mckaig-bio.png)
 2. Identifies the top three most “overly positive” endorsements (criteria below).
+![Overly positive review](./resources/review.png)
 3. Outputs these three reviews to the console, in descending order of positivity score.
+![Program output](./resources/output.png)
 
 # How to run dealer-scrape
 Figuring out how to package it up, but in the meantime you can:
