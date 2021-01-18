@@ -9,10 +9,16 @@ Scrapes dealer reviews and identifies those most "overly positive", as defined b
 ![Program output](./resources/output.png)<br>
 
 # How to run dealer-scrape
-Figuring out how to package it up, but in the meantime you can:
-1. Install python3
-2. pip install requests_html
-3. Navigate to main.py directory and run 'python3 main.py'
+Easy method (UNIX Executable):
+1. Download this repository from GitHub as a ZIP.
+2. Unzip the ZIP, and navigate to the dist/ folder.
+3. Double-click the 'main' file.
+<br>
+Boss mode (DIY):
+1. Download this repo
+2. Install python3
+3. Run 'pip3 install requests_html'
+4. Navigate to repo directory and run 'python3 main.py'
 
 # What makes a review overly positive
 A review is given a positivity score based on the sum of the following points system.<br>
