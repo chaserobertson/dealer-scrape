@@ -12,8 +12,8 @@ Scrapes dealer reviews and identifies those most "overly positive", as defined b
 Easy method (UNIX Executable):
 1. Download this repository from GitHub as a ZIP.
 2. Unzip the ZIP, and navigate to the dist/ folder.
-3. Double-click the 'main' file.
-<br>
+3. Double-click the 'main' file.<br>
+
 Boss mode (DIY):
 1. Download this repo
 2. Install python3
