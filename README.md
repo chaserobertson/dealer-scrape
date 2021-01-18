@@ -2,10 +2,15 @@
 Scrapes dealer reviews and identifies those most "overly positive", as defined below.
 
 1. Scrapes the first five pages of reviews of McKaig Chevrolet Buick on DealerRater.com.
+<br>
 ![McKaig dealership biography](./resources/mckaig-bio.png)
+<br>
 2. Identifies the top three most “overly positive” endorsements (criteria below).
+<br>
 ![Overly positive review](./resources/review.png)
+<br>
 3. Outputs these three reviews to the console, in descending order of positivity score.
+<br>
 ![Program output](./resources/output.png)
 
 # How to run dealer-scrape
@@ -14,7 +19,7 @@ Figuring out how to package it up, but in the meantime you can:
 2. pip install requests_html
 3. Navigate to main.py directory and run 'python3 main.py'
 
-# What makes a review overly positive?
+# What makes a review overly positive
 A review is given a positivity score based on the sum of the following points system.<br>
 The minimum score is 0, and the maximum is 100.
 

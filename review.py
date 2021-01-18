@@ -20,18 +20,23 @@ class Review:
     def getPositivityScore(self):
         return self.positivityScore
 
-    def calcPositivityScore(self, body_max, num_emp_max):
-        # start with review rating multiplied by 5
-        subscores = [self.rating * 5]
-
-        # sum subratings and divide by 2 if dealership not recommended
-        subrating_subscore = sum(self.subratings.values())
+    def calcSubratingsSubscore(self):
+        # sum all subratings
+        subscore = sum(self.subratings.values())
         if self.subratings['Recommend Dealer'] == True:
-            subrating_subscore -= 1
+            # correct for extra boolean 1 in subratings if present
+            subscore -= 1
         else:
-            subrating_subscore /= 2
-        subscores.append(subrating_subscore)
+            # if not present divide subscore by 2
+            subscore /= 2
+        return subscore
 
+    def calcBodySubscore(self, body_max):
+        # number of words in the review body, relative to maximum, scaled to 25
+        body_score = (len(self.content.split(' ')) / body_max) * 25
+        return body_score
+
+    def calcEmpReviewsSubscore(self, num_emp_max):
         # number of employee ratings relative to max, scaled to 25, multiplied by avg rating out of 5
         num_emp = len(self.employee_ratings)
         if num_emp == 0:
@@ -39,11 +44,14 @@ class Review:
         else:
             avg_rating = sum(self.employee_ratings) / num_emp
             emp_subscore = (25 * num_emp / num_emp_max) * (avg_rating / 5)
-        subscores.append(emp_subscore)
+        return emp_subscore
 
-        # number of words in the review body, relative to maximum, scaled to 25
-        body_score = (len(self.content.split(' ')) / body_max) * 25
-        subscores.append(body_score)
+    def calcPositivityScore(self, body_max, num_emp_max):
+        # start with review rating multiplied by 5
+        subscores = [self.rating * 5]
+        subscores.append(self.calcSubratingsSubscore())
+        subscores.append(self.calcEmpReviewsSubscore(num_emp_max))
+        subscores.append(self.calcBodySubscore(body_max))
 
         self.positivityScore = sum(subscores)
 
@@ -61,13 +69,17 @@ class ReviewCollection:
         return output
 
     def addReview(self, **kwargs):
-        # update max review body size and number of employee reviews
-        body_size = len(kwargs['content'].split(' '))
-        if body_size > self.body_max:
-            self.body_max = body_size
-        num_emp = len(kwargs['employee_ratings'])
-        if num_emp > self.num_emp_max:
-            self.num_emp_max = num_emp
+        # update max review body size
+        if 'content' in kwargs.keys():
+            body_size = len(kwargs['content'].split(' '))
+            if body_size > self.body_max:
+                self.body_max = body_size
+
+        # update max number of employee reviews
+        if 'employee_ratings' in kwargs.keys():
+            num_emp = len(kwargs['employee_ratings'])
+            if num_emp > self.num_emp_max:
+                self.num_emp_max = num_emp
 
         # add the review
         self.reviews.append(Review(**kwargs))
@@ -82,6 +94,7 @@ class ReviewCollection:
         # calculate score of each review
         for review in self.reviews:
             review.calcPositivityScore(self.body_max, self.num_emp_max)
+
         # sort by positivity score, descending
         self.reviews.sort(key=Review.getPositivityScore, reverse=True)
         return self.reviews
