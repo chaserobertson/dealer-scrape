@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env/python3
 from requests_html import AsyncHTMLSession
 from scrape import populateReviews
 
@@ -38,3 +38,6 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+if __name__ == '__version__':
+    '1.0'
