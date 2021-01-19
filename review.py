@@ -23,7 +23,7 @@ class Review:
     def calcSubratingsSubscore(self):
         # sum all subratings
         subscore = sum(self.subratings.values())
-        if self.subratings['Recommend Dealer'] == True:
+        if 'Recommend Dealer' in self.subratings.keys() and self.subratings['Recommend Dealer'] == True:
             # correct for extra boolean 1 in subratings if present
             subscore -= 1
         else:
