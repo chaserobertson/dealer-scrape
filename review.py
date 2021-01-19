@@ -9,7 +9,9 @@ class Review:
 
     def __str__(self):
         output = '\n'
-        output += 'Rating: ' + str(self.rating) + '\n'
+        output += 'POSITIVITY SCORE: ' + \
+            str(int(self.positivityScore)) + '/100' + '\n'
+        output += 'Overall Rating: ' + str(self.rating) + '\n'
         output += self.content + '\n'
         for rating in self.subratings.keys():
             output += str(rating) + ': ' + str(self.subratings[rating]) + '\n'
